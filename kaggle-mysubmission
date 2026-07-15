@@ -1,0 +1,22 @@
+
+from sklearn import linear_model
+from numpy import genfromtxt, savetxt
+
+def main():
+    #create the training & test sets, skipping the header row with [1:]
+    dataset = genfromtxt(open('data/train.csv','rb'), delimiter=",", dtype= None)[1:]   
+    train = [x[1:41] for x in dataset]
+    test = genfromtxt(open('data/test.csv','rb'), delimiter=",")[1:]
+
+    #create and train the random forest
+    #multi-core CPUs can use: rf = RandomForestClassifier(n_estimators=100, n_jobs=2)
+    lrg = linear_model.LinearRegression(copy_X=True, fit_intercept=True, n_jobs=1, normalize=False)
+    lrg.fit(train)
+    
+    predicted_probs = [[index + 1, x[1]] for index, x in enumerate(lrg.predict_proba(test))]
+
+    savetxt('Data/submission.csv', predicted_probs, delimiter=',', fmt='%d,%f', 
+            header='Id,PredictedProbability', comments = '')
+
+if __name__=="__main__":
+    main()
